@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.apollo)
 }
 
 kotlin {
@@ -39,6 +40,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.apollo.runtime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -77,3 +79,12 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
+//apollo {
+//    service("service") {
+//        packageName.set("com.example.rocketreserver")
+//        introspection {
+//            endpointUrl.set("https://apollo-fullstack-tutorial.herokuapp.com/graphql")
+//            schemaFile.set(file("src/main/graphql/schema.graphqls"))
+//        }
+//    }
+//}

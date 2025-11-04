@@ -18,12 +18,12 @@ package com.honcharenko.reposbrowser.config
  * 
  * Note: The token should start with "ghp_" for personal access tokens
  */
-object Secrets {
-    /**
-     * GitHub Personal Access Token
-     * Required scopes: public_repo (or just leave with default public access)
-     * 
-     * Example format: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-     */
-    const val GITHUB_TOKEN = "YOUR_GITHUB_TOKEN_HERE"
-}
+//object Secrets {
+//    /**
+//     * GitHub Personal Access Token
+//     * Required scopes: public_repo (or just leave with default public access)
+//     *
+//     * Example format: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+//     */
+//    const val GITHUB_TOKEN = "YOUR_GITHUB_TOKEN_HERE"
+//}
