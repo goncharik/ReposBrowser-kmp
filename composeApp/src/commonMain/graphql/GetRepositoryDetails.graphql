@@ -1,0 +1,43 @@
+query GetRepositoryDetails($owner: String!, $name: String!) {
+  repository(owner: $owner, name: $name) {
+    id
+    name
+    nameWithOwner
+    description
+    stargazerCount
+    forkCount
+    watchers {
+      totalCount
+    }
+    issues(states: OPEN) {
+      totalCount
+    }
+    pullRequests(states: OPEN) {
+      totalCount
+    }
+    primaryLanguage {
+      name
+      color
+    }
+    licenseInfo {
+      name
+    }
+    createdAt
+    updatedAt
+    url
+    homepageUrl
+    owner {
+      login
+      avatarUrl
+    }
+    languages(first: 5, orderBy: {field: SIZE, direction: DESC}) {
+      edges {
+        node {
+          name
+          color
+        }
+        size
+      }
+    }
+  }
+}

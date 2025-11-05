@@ -79,12 +79,19 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
-//apollo {
-//    service("service") {
-//        packageName.set("com.example.rocketreserver")
-//        introspection {
-//            endpointUrl.set("https://apollo-fullstack-tutorial.herokuapp.com/graphql")
-//            schemaFile.set(file("src/main/graphql/schema.graphqls"))
-//        }
-//    }
-//}
+// Configure Apollo
+apollo {
+    service("github") {
+        // Package name for generated code
+        packageName.set("com.honcharenko.reposbrowser.data.graphql")
+        
+        // Schema location - GitHub GraphQL schema
+        schemaFiles.from(file("src/commonMain/graphql/schema.graphqls"))
+        
+        // Optional: Generate Kotlin models as data classes
+        generateKotlinModels.set(true)
+        
+        // Optional: Use semantic nullability (experimental in v4)
+        // generateOptionalOperationVariables.set(false)
+    }
+}

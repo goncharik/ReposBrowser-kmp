@@ -1,0 +1,33 @@
+query SearchRepositories($query: String!, $first: Int!, $after: String) {
+  search(query: $query, type: REPOSITORY, first: $first, after: $after) {
+    repositoryCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    edges {
+      cursor
+      node {
+        ... on Repository {
+          id
+          name
+          nameWithOwner
+          description
+          stargazerCount
+          forkCount
+          primaryLanguage {
+            name
+            color
+          }
+          owner {
+            login
+            avatarUrl
+          }
+          url
+        }
+      }
+    }
+  }
+}
