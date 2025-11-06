@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.apollo)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -30,7 +31,22 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            // Koin Android
+            implementation(libs.koin.android)
+
+            // SQLDelight Android Driver
+            implementation(libs.sqldelight.android)
+
+            // Coroutines Android
+            implementation(libs.kotlinx.coroutines.android)
         }
+
+        iosMain.dependencies {
+            // SQLDelight Native Driver
+            implementation(libs.sqldelight.native)
+        }
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -40,10 +56,26 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            // Apollo GraphQL
             implementation(libs.apollo.runtime)
+
+            // Koin Core & Compose
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+
+            // SQLDelight
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
+
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.core)
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
@@ -84,14 +116,24 @@ apollo {
     service("github") {
         // Package name for generated code
         packageName.set("com.honcharenko.reposbrowser.data.graphql")
-        
+
         // Schema location - GitHub GraphQL schema
         schemaFiles.from(file("src/commonMain/graphql/schema.graphqls"))
-        
+
         // Optional: Generate Kotlin models as data classes
         generateKotlinModels.set(true)
-        
+
         // Optional: Use semantic nullability (experimental in v4)
         // generateOptionalOperationVariables.set(false)
+    }
+}
+
+// Configure SQLDelight
+sqldelight {
+    databases {
+        create("ReposBrowserDatabase") {
+            packageName.set("com.honcharenko.reposbrowser.data.local")
+            srcDirs.setFrom("src/commonMain/sqldelight")
+        }
     }
 }

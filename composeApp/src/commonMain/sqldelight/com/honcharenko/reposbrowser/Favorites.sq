@@ -1,0 +1,53 @@
+-- Favorites table for storing user's favorite GitHub repositories
+
+CREATE TABLE IF NOT EXISTS Favorite (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    ownerLogin TEXT NOT NULL,
+    ownerAvatarUrl TEXT,
+    description TEXT,
+    stargazersCount INTEGER NOT NULL DEFAULT 0,
+    forksCount INTEGER NOT NULL DEFAULT 0,
+    language TEXT,
+    url TEXT NOT NULL,
+    createdAt INTEGER NOT NULL
+);
+
+-- Queries
+
+-- Get all favorites ordered by creation time (most recent first)
+selectAll:
+SELECT *
+FROM Favorite
+ORDER BY createdAt DESC;
+
+-- Get a specific favorite by repository ID
+selectById:
+SELECT *
+FROM Favorite
+WHERE id = ?;
+
+-- Check if a repository is favorited
+isFavorite:
+SELECT COUNT(*) > 0
+FROM Favorite
+WHERE id = ?;
+
+-- Insert or replace a favorite
+insertOrReplace:
+INSERT OR REPLACE INTO Favorite(id, name, ownerLogin, ownerAvatarUrl, description, stargazersCount, forksCount, language, url, createdAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Delete a favorite by ID
+deleteById:
+DELETE FROM Favorite
+WHERE id = ?;
+
+-- Delete all favorites
+deleteAll:
+DELETE FROM Favorite;
+
+-- Count total favorites
+countAll:
+SELECT COUNT(*)
+FROM Favorite;
