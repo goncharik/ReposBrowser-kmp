@@ -28,6 +28,9 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
+            // Navigation
+            implementation(libs.androidx.navigation.compose)
+
             // Koin Android
             implementation(libs.koin.android)
 
