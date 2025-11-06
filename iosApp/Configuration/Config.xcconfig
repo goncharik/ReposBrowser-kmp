@@ -1,4 +1,4 @@
-TEAM_ID=
+TEAM_ID=7V99GYC5W7
 
 PRODUCT_NAME=ReposBrowser
 PRODUCT_BUNDLE_IDENTIFIER=com.honcharenko.reposbrowser.ReposBrowser$(TEAM_ID)

@@ -8,11 +8,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlin.time.Clock
+
 
 /**
  * Wrapper around SQLDelight database for managing favorite repositories.
  * Provides suspend functions and Flow-based reactive queries.
  */
+@OptIn(kotlin.time.ExperimentalTime::class)
 class FavoritesDatabase(
     private val driver: app.cash.sqldelight.db.SqlDriver
 ) {
@@ -71,7 +74,7 @@ class FavoritesDatabase(
         forksCount: Long,
         language: String?,
         url: String,
-        createdAt: Long = System.currentTimeMillis()
+        createdAt: Long = Clock.System.now().toEpochMilliseconds()
     ): Unit = withContext(Dispatchers.IO) {
         queries.insertOrReplace(
             id = id,

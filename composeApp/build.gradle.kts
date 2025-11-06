@@ -17,6 +17,9 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+
+            // Link SQLite for SQLDelight
+            linkerOpts("-lsqlite3")
         }
     }
 
@@ -33,17 +36,24 @@ kotlin {
 
             // Coroutines Android
             implementation(libs.kotlinx.coroutines.android)
+
+            // Ktor Client for Android (OkHttp engine)
+            implementation(libs.ktor.client.okhttp)
         }
 
         iosMain.dependencies {
             // SQLDelight Native Driver
             implementation(libs.sqldelight.native)
+
+            // Ktor Client for iOS (Darwin engine)
+            implementation(libs.ktor.client.darwin)
         }
 
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -65,9 +75,15 @@ kotlin {
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)
 
+            // DateTime
+            implementation(libs.kotlinx.datetime)
+
             // Coil Image Loading
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
+
+            // Ktor Client Core (required by Coil)
+            implementation(libs.ktor.client.core)
         }
 
         commonTest.dependencies {

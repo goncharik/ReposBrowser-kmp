@@ -72,7 +72,17 @@ fun RepositoryCard(
                     contentDescription = "${repository.ownerLogin}'s avatar",
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
+                    onLoading = {
+                        println("Loading image: ${repository.ownerAvatarUrl}")
+                    },
+                    onSuccess = {
+                        println("Successfully loaded image: ${repository.ownerAvatarUrl}")
+                    },
+                    onError = { state ->
+                        println("Error loading image: ${repository.ownerAvatarUrl}")
+                        println("Error: ${state.result.throwable.message}")
+                    }
                 )
 
                 Spacer(modifier = Modifier.width(12.dp))
