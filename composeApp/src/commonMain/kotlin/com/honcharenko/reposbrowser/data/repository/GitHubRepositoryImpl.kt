@@ -16,28 +16,34 @@ class GitHubRepositoryImpl(
         query: String,
         limit: Int,
         after: String?
-    ): Result<Pair<List<Repository>, Boolean>> {
+    ): Result<SearchResult> {
         return try {
             val response = apiClient.searchRepositories(query, limit, after)
             val repositories = response.search.edges?.mapNotNull { edge ->
-                val repo = edge?.node?.onRepository ?: return@mapNotNull null
-                Repository(
-                    id = repo.id,
-                    name = repo.name,
-                    nameWithOwner = repo.nameWithOwner,
-                    description = repo.description,
-                    stargazersCount = repo.stargazerCount,
-                    forksCount = repo.forkCount,
-                    language = repo.primaryLanguage?.name,
-                    languageColor = repo.primaryLanguage?.color,
-                    ownerLogin = repo.owner.login,
-                    ownerAvatarUrl = repo.owner.avatarUrl.toString(),
-                    url = repo.url.toString()
-                )
+                edge?.node?.onRepository?.let { repo ->
+                    Repository(
+                        id = repo.id,
+                        name = repo.name,
+                        nameWithOwner = repo.nameWithOwner,
+                        description = repo.description,
+                        stargazersCount = repo.stargazerCount,
+                        forksCount = repo.forkCount,
+                        language = repo.primaryLanguage?.name,
+                        languageColor = repo.primaryLanguage?.color,
+                        ownerLogin = repo.owner.login,
+                        ownerAvatarUrl = repo.owner.avatarUrl.toString(),
+                        url = repo.url.toString()
+                    )
+                }
             } ?: emptyList()
 
-            val hasNextPage = response.search.pageInfo.hasNextPage
-            Result.success(repositories to hasNextPage)
+            val pageInfo = response.search.pageInfo
+            val searchResult = SearchResult(
+                repositories = repositories,
+                hasNextPage = pageInfo.hasNextPage,
+                endCursor = pageInfo.endCursor
+            )
+            Result.success(searchResult)
         } catch (e: Exception) {
             Result.failure(e)
         }
