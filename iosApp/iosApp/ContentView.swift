@@ -5,8 +5,22 @@ import ComposeApp
 // MARK: - Compose View Wrappers
 
 struct SearchComposeView: UIViewControllerRepresentable {
+    let onRepositoryClick: (Repository) -> Void
+
     func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.SearchViewController()
+        // Set the callback before creating the view controller
+        MainViewControllerKt.iosRepositoryClickCallback = onRepositoryClick
+        return MainViewControllerKt.SearchViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
+struct RepositoryDetailsComposeView: UIViewControllerRepresentable {
+    let repository: Repository
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        return MainViewControllerKt.RepoDetailsViewController(repository: repository)
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
@@ -23,13 +37,23 @@ struct FavoritesComposeView: UIViewControllerRepresentable {
 // MARK: - Main Content View
 
 struct ContentView: View {
+    @State private var selectedRepository: Repository?
+
     var body: some View {
         TabView {
             NavigationStack {
-                SearchComposeView()
-                    .navigationTitle("Search")
-                    .navigationBarTitleDisplayMode(.large)
-                    .ignoresSafeArea(edges: .bottom)
+                SearchComposeView(onRepositoryClick: { repository in
+                    selectedRepository = repository
+                })
+                .navigationTitle("Search")
+                .navigationBarTitleDisplayMode(.large)
+                .ignoresSafeArea(edges: .bottom)
+                .navigationDestination(item: $selectedRepository) { repository in
+                    RepositoryDetailsComposeView(repository: repository)
+                        .navigationTitle(repository.name)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .ignoresSafeArea(edges: .bottom)
+                }
             }
             .tabItem {
                 Label("Search", systemImage: "magnifyingglass")

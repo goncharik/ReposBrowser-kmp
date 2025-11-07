@@ -42,6 +42,10 @@ class SearchViewModel(
     private val _isLoadingMore = MutableStateFlow(false)
     val isLoadingMore: StateFlow<Boolean> = _isLoadingMore.asStateFlow()
 
+    // Favorites state - map of repository ID to favorite status
+    private val _favoritesMap = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val favoritesMap: StateFlow<Map<String, Boolean>> = _favoritesMap.asStateFlow()
+
     // Real pagination cursor from GitHub GraphQL API
     private var endCursor: String? = null
 
@@ -73,6 +77,9 @@ class SearchViewModel(
                 _repositories.value = searchResult.repositories
                 _hasNextPage.value = searchResult.hasNextPage
                 endCursor = searchResult.endCursor
+
+                // Check favorites status for loaded repositories in background
+                checkFavoritesForRepositories(searchResult.repositories)
             }.onFailure { exception ->
                 _error.value = exception.message ?: "An error occurred while searching"
             }
@@ -101,6 +108,9 @@ class SearchViewModel(
                 _repositories.value = _repositories.value + searchResult.repositories
                 _hasNextPage.value = searchResult.hasNextPage
                 endCursor = searchResult.endCursor
+
+                // Check favorites status for newly loaded repositories in background
+                checkFavoritesForRepositories(searchResult.repositories)
             }.onFailure { exception ->
                 _error.value = exception.message ?: "An error occurred while loading more"
             }
@@ -110,11 +120,28 @@ class SearchViewModel(
     }
 
     /**
+     * Checks favorites status for a list of repositories in the background
+     */
+    private fun checkFavoritesForRepositories(repositories: List<Repository>) {
+        viewModelScope.launch {
+            val updatedMap = _favoritesMap.value.toMutableMap()
+            repositories.forEach { repo ->
+                updatedMap[repo.id] = favoritesRepository.isFavorite(repo.id)
+            }
+            _favoritesMap.value = updatedMap
+        }
+    }
+
+    /**
      * Toggles favorite status for a repository
      */
     fun toggleFavorite(repository: Repository) {
         viewModelScope.launch {
             favoritesRepository.toggleFavorite(repository)
+                .onSuccess { isFavorited ->
+                    // Update the favorites map immediately for responsive UI
+                    _favoritesMap.value = _favoritesMap.value + (repository.id to isFavorited)
+                }
                 .onFailure { exception ->
                     _error.value = exception.message ?: "Failed to update favorite"
                 }

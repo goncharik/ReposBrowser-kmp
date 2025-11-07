@@ -22,12 +22,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.honcharenko.reposbrowser.data.model.Repository
+import com.honcharenko.reposbrowser.ui.screens.RepoDetailsScreen
 import com.honcharenko.reposbrowser.ui.screens.SearchScreen
 import com.honcharenko.reposbrowser.ui.theme.AppTheme
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 /**
  * Sealed class representing app navigation routes
@@ -35,6 +42,53 @@ import com.honcharenko.reposbrowser.ui.theme.AppTheme
 sealed class Screen(val route: String, val title: String) {
     data object Search : Screen("search", "Search")
     data object Favorites : Screen("favorites", "Favorites")
+    data object Details : Screen("details/{repoData}", "Repository Details") {
+        fun createRoute(repository: Repository): String {
+            val encodedData = encodeRepositoryData(repository)
+            return "details/$encodedData"
+        }
+    }
+}
+
+/**
+ * Encodes repository data for navigation
+ */
+private fun encodeRepositoryData(repository: Repository): String {
+    // Simple encoding: join fields with | separator and URL-encode
+    val data = listOf(
+        repository.id,
+        repository.name,
+        repository.nameWithOwner,
+        repository.description ?: "",
+        repository.stargazersCount.toString(),
+        repository.forksCount.toString(),
+        repository.language ?: "",
+        repository.languageColor ?: "",
+        repository.ownerLogin,
+        repository.ownerAvatarUrl ?: "",
+        repository.url
+    ).joinToString("|")
+    return URLEncoder.encode(data, StandardCharsets.UTF_8.toString())
+}
+
+/**
+ * Decodes repository data from navigation
+ */
+private fun decodeRepositoryData(encodedData: String): Repository {
+    val data = URLDecoder.decode(encodedData, StandardCharsets.UTF_8.toString()).split("|")
+    return Repository(
+        id = data[0],
+        name = data[1],
+        nameWithOwner = data[2],
+        description = data[3].ifBlank { null },
+        stargazersCount = data[4].toInt(),
+        forksCount = data[5].toInt(),
+        language = data[6].ifBlank { null },
+        languageColor = data[7].ifBlank { null },
+        ownerLogin = data[8],
+        ownerAvatarUrl = data[9].ifBlank { null },
+        url = data[10]
+    )
 }
 
 /**
@@ -49,12 +103,19 @@ fun AppNavigation() {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        val screens = listOf(Screen.Search, Screen.Favorites)
+        // Only bottom navigation screens (not details or other full-screen destinations)
+        val bottomNavScreens = listOf(Screen.Search, Screen.Favorites)
 
         // Get current screen title based on route
-        val currentScreen = screens.find { screen ->
-            currentDestination?.hierarchy?.any { it.route == screen.route } == true
-        } ?: Screen.Search
+        val currentScreen = when (currentDestination?.route) {
+            Screen.Search.route -> Screen.Search
+            Screen.Favorites.route -> Screen.Favorites
+            else -> if (currentDestination?.route?.startsWith("details/") == true) {
+                Screen.Details
+            } else {
+                Screen.Search
+            }
+        }
 
         Scaffold(
             topBar = {
@@ -68,7 +129,7 @@ fun AppNavigation() {
             },
         bottomBar = {
             NavigationBar {
-                screens.forEach { screen ->
+                bottomNavScreens.forEach { screen ->
                     val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
 
                     NavigationBarItem(
@@ -77,6 +138,7 @@ fun AppNavigation() {
                                 imageVector = when (screen) {
                                     Screen.Search -> Icons.Default.Search
                                     Screen.Favorites -> Icons.Default.Star
+                                    else -> Icons.Default.Search // Fallback (shouldn't happen with bottomNavScreens)
                                 },
                                 contentDescription = screen.title
                             )
@@ -108,8 +170,7 @@ fun AppNavigation() {
             composable(Screen.Search.route) {
                 SearchScreen(
                     onRepositoryClick = { repository ->
-                        // TODO: Navigate to repository details screen when implemented
-                        println("Repository clicked: ${repository.nameWithOwner}")
+                        navController.navigate(Screen.Details.createRoute(repository))
                     }
                 )
             }
@@ -117,6 +178,21 @@ fun AppNavigation() {
             composable(Screen.Favorites.route) {
                 // TODO: Replace with FavoritesScreen when implemented
                 FavoritesPlaceholder()
+            }
+
+            composable(
+                route = Screen.Details.route,
+                arguments = listOf(
+                    navArgument("repoData") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val encodedData = backStackEntry.arguments?.getString("repoData") ?: ""
+                val repository = decodeRepositoryData(encodedData)
+
+                RepoDetailsScreen(
+                    repository = repository,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
         }

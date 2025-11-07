@@ -69,10 +69,10 @@ fun SearchScreen(
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
     val error by viewModel.error.collectAsState()
     val hasNextPage by viewModel.hasNextPage.collectAsState()
+    val favoritesMap by viewModel.favoritesMap.collectAsState()
 
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Show error in snackbar
@@ -180,12 +180,7 @@ fun SearchScreen(
                         onRepositoryClick = onRepositoryClick,
                         onFavoriteClick = viewModel::toggleFavorite,
                         isFavorite = { repoId ->
-                            // Suspend function, need to run in coroutine
-                            var result = false
-                            scope.launch {
-                                result = viewModel.isFavorite(repoId)
-                            }
-                            result
+                            favoritesMap[repoId] ?: false
                         },
                         modifier = Modifier.fillMaxSize()
                     )
