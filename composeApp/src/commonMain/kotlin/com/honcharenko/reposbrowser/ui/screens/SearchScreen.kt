@@ -31,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,7 +41,6 @@ import com.honcharenko.reposbrowser.data.model.Repository
 import com.honcharenko.reposbrowser.ui.components.LoadingIndicator
 import com.honcharenko.reposbrowser.ui.components.RepositoryCard
 import com.honcharenko.reposbrowser.viewmodel.SearchViewModel
-import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -55,13 +53,13 @@ import org.koin.compose.viewmodel.koinViewModel
  * - Favorite management
  * - Loading and error states
  *
- * Note: Navigation bar should be implemented natively on each platform
- * (SwiftUI on iOS, Jetpack Compose on Android)
+ * Note: Navigation bar should be implemented natively on each platform (SwiftUI on iOS, Jetpack
+ * Compose on Android)
  */
 @Composable
 fun SearchScreen(
-    viewModel: SearchViewModel = koinViewModel(),
-    onRepositoryClick: (Repository) -> Unit = {}
+        viewModel: SearchViewModel = koinViewModel(),
+        onRepositoryClick: (Repository) -> Unit = {}
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()
     val repositories by viewModel.repositories.collectAsState()
@@ -89,10 +87,10 @@ fun SearchScreen(
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
             val totalItems = listState.layoutInfo.totalItemsCount
             lastVisibleItem != null &&
-                lastVisibleItem.index >= totalItems - 3 &&
-                hasNextPage &&
-                !isLoadingMore &&
-                !isLoading
+                    lastVisibleItem.index >= totalItems - 3 &&
+                    hasNextPage &&
+                    !isLoadingMore &&
+                    !isLoading
         }
     }
 
@@ -103,68 +101,55 @@ fun SearchScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             // Search input
             SearchBar(
-                query = searchQuery,
-                onQueryChange = viewModel::onSearchQueryChanged,
-                onSearch = {
-                    keyboardController?.hide()
-                    viewModel.onSearch()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                    query = searchQuery,
+                    onQueryChange = viewModel::onSearchQueryChanged,
+                    onSearch = {
+                        keyboardController?.hide()
+                        viewModel.onSearch()
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
             )
 
             // Content area
             when {
                 // Initial loading state
                 isLoading && repositories.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         LoadingIndicator(message = "Searching...")
                     }
                 }
 
                 // Empty state
                 repositories.isEmpty() && !isLoading && searchQuery.isNotBlank() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "No repositories found",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = "No repositories found",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
                 // Initial state (no search performed)
                 repositories.isEmpty() && searchQuery.isBlank() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(16.dp)
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(16.dp)
                             )
                             Text(
-                                text = "Search for GitHub repositories",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    text = "Search for GitHub repositories",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -173,16 +158,14 @@ fun SearchScreen(
                 // Repository list
                 else -> {
                     RepositoryList(
-                        repositories = repositories,
-                        listState = listState,
-                        isLoadingMore = isLoadingMore,
-                        hasNextPage = hasNextPage,
-                        onRepositoryClick = onRepositoryClick,
-                        onFavoriteClick = viewModel::toggleFavorite,
-                        isFavorite = { repoId ->
-                            favoritesMap[repoId] ?: false
-                        },
-                        modifier = Modifier.fillMaxSize()
+                            repositories = repositories,
+                            listState = listState,
+                            isLoadingMore = isLoadingMore,
+                            hasNextPage = hasNextPage,
+                            onRepositoryClick = onRepositoryClick,
+                            onFavoriteClick = viewModel::toggleFavorite,
+                            isFavorite = { repoId -> favoritesMap[repoId] ?: false },
+                            modifier = Modifier.fillMaxSize()
                     )
                 }
             }
@@ -190,91 +173,73 @@ fun SearchScreen(
 
         // Snackbar host at bottom
         SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
         )
     }
 }
 
-/**
- * Search input bar with clear button.
- */
+/** Search input bar with clear button. */
 @Composable
 private fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit,
-    modifier: Modifier = Modifier
+        query: String,
+        onQueryChange: (String) -> Unit,
+        onSearch: () -> Unit,
+        modifier: Modifier = Modifier
 ) {
     TextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = modifier,
-        placeholder = { Text("Search repositories...") },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search"
-            )
-        },
-        trailingIcon = {
-            if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Clear"
-                    )
+            value = query,
+            onValueChange = onQueryChange,
+            modifier = modifier,
+            placeholder = { Text("Search repositories...") },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+            },
+            trailingIcon = {
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { onQueryChange("") }) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = "Clear")
+                    }
                 }
-            }
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Search
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = { onSearch() }
-        ),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        ),
-        shape = MaterialTheme.shapes.medium
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+            colors =
+                    TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                    ),
+            shape = MaterialTheme.shapes.medium
     )
 }
 
-/**
- * Repository list with pagination support.
- */
+/** Repository list with pagination support. */
 @Composable
 private fun RepositoryList(
-    repositories: List<Repository>,
-    listState: androidx.compose.foundation.lazy.LazyListState,
-    isLoadingMore: Boolean,
-    hasNextPage: Boolean,
-    onRepositoryClick: (Repository) -> Unit,
-    onFavoriteClick: (Repository) -> Unit,
-    isFavorite: (String) -> Boolean,
-    modifier: Modifier = Modifier
+        repositories: List<Repository>,
+        listState: androidx.compose.foundation.lazy.LazyListState,
+        isLoadingMore: Boolean,
+        hasNextPage: Boolean,
+        onRepositoryClick: (Repository) -> Unit,
+        onFavoriteClick: (Repository) -> Unit,
+        isFavorite: (String) -> Boolean,
+        modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier,
-        state = listState,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = modifier,
+            state = listState,
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(
-            items = repositories,
-            key = { it.id }
-        ) { repository ->
+        items(items = repositories, key = { it.id }) { repository ->
             RepositoryCard(
-                repository = repository,
-                isFavorite = isFavorite(repository.id),
-                onFavoriteClick = { onFavoriteClick(repository) },
-                onClick = { onRepositoryClick(repository) }
+                    repository = repository,
+                    isFavorite = isFavorite(repository.id),
+                    onFavoriteClick = { onFavoriteClick(repository) },
+                    onClick = { onRepositoryClick(repository) }
             )
         }
 
@@ -282,21 +247,15 @@ private fun RepositoryList(
         if (isLoadingMore) {
             item {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LoadingIndicator(message = "Loading more...")
-                }
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        contentAlignment = Alignment.Center
+                ) { LoadingIndicator(message = "Loading more...") }
             }
         }
 
         // Spacer at the end for better UX
         if (hasNextPage && !isLoadingMore && repositories.isNotEmpty()) {
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            item { Spacer(modifier = Modifier.height(58.dp)) }
         }
     }
 }

@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.honcharenko.reposbrowser.data.model.Repository
 import com.honcharenko.reposbrowser.data.model.RepositoryDetails
-import com.honcharenko.reposbrowser.ui.components.ErrorState
 import com.honcharenko.reposbrowser.ui.components.LanguageItem
 import com.honcharenko.reposbrowser.ui.components.LoadingIndicator
 import com.honcharenko.reposbrowser.ui.components.StatItem
@@ -65,9 +64,9 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun RepoDetailsScreen(
-    repository: Repository,
-    onNavigateBack: () -> Unit = {},
-    viewModel: RepoDetailsViewModel = koinViewModel()
+        repository: Repository,
+        onNavigateBack: () -> Unit = {},
+        viewModel: RepoDetailsViewModel = koinViewModel()
 ) {
     val repositoryDetails by viewModel.repositoryDetails.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -92,59 +91,55 @@ fun RepoDetailsScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         // Always show content - use basic repository data initially, then full details when loaded
         DetailsContent(
-            repository = repository,
-            details = repositoryDetails,
-            isFavorite = isFavorite,
-            isLoadingDetails = isLoading,
-            onFavoriteClick = { viewModel.toggleFavorite() },
-            onRetry = { viewModel.loadDetails(repository.ownerLogin, repository.name) },
-            modifier = Modifier.fillMaxSize()
+                repository = repository,
+                details = repositoryDetails,
+                isFavorite = isFavorite,
+                isLoadingDetails = isLoading,
+                onFavoriteClick = { viewModel.toggleFavorite() },
+                onRetry = { viewModel.loadDetails(repository.ownerLogin, repository.name) },
+                modifier = Modifier.fillMaxSize()
         )
 
         // Snackbar host at bottom
         SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
         )
     }
 }
 
 /**
- * Details content with scrollable sections.
- * Shows basic repository info immediately, and progressively enhances with full details.
+ * Details content with scrollable sections. Shows basic repository info immediately, and
+ * progressively enhances with full details.
  */
 @Composable
 private fun DetailsContent(
-    repository: Repository,
-    details: RepositoryDetails?,
-    isFavorite: Boolean,
-    isLoadingDetails: Boolean,
-    onFavoriteClick: () -> Unit,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+        repository: Repository,
+        details: RepositoryDetails?,
+        isFavorite: Boolean,
+        isLoadingDetails: Boolean,
+        onFavoriteClick: () -> Unit,
+        onRetry: () -> Unit,
+        modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = modifier.verticalScroll(rememberScrollState()).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Header: Avatar, Name, Favorite button (always visible with basic data)
         HeaderSection(
-            ownerAvatarUrl = repository.ownerAvatarUrl,
-            nameWithOwner = repository.nameWithOwner,
-            isFavorite = isFavorite,
-            onFavoriteClick = onFavoriteClick
+                ownerAvatarUrl = repository.ownerAvatarUrl,
+                nameWithOwner = repository.nameWithOwner,
+                isFavorite = isFavorite,
+                onFavoriteClick = onFavoriteClick
         )
 
         // Description (from basic data)
         if (!repository.description.isNullOrBlank()) {
             Text(
-                text = repository.description,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                    text = repository.description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -156,15 +151,10 @@ private fun DetailsContent(
             isLoadingDetails && details == null -> {
                 // Show loading indicator while fetching full details
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LoadingIndicator(message = "Loading additional details...")
-                }
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        contentAlignment = Alignment.Center
+                ) { LoadingIndicator(message = "Loading additional details...") }
             }
-
             details != null -> {
                 // Full details loaded - show additional information
                 HorizontalDivider()
@@ -176,9 +166,9 @@ private fun DetailsContent(
 
                 // Metadata (Created, Updated, License)
                 MetadataSection(
-                    createdAt = details.createdAt,
-                    updatedAt = details.updatedAt,
-                    license = details.license
+                        createdAt = details.createdAt,
+                        updatedAt = details.updatedAt,
+                        license = details.license
                 )
 
                 // Languages breakdown
@@ -190,194 +180,185 @@ private fun DetailsContent(
                 // Links
                 if (!details.homepageUrl.isNullOrBlank() || details.url.isNotBlank()) {
                     HorizontalDivider()
-                    LinksSection(
-                        homepageUrl = details.homepageUrl,
-                        repoUrl = details.url
-                    )
+                    LinksSection(homepageUrl = details.homepageUrl, repoUrl = details.url)
                 }
+
+                // Spacer at the end for better UX
+                Spacer(modifier = Modifier.height(58.dp))
             }
         }
     }
 }
 
-/**
- * Header with avatar, repo name, and favorite button
- */
+/** Header with avatar, repo name, and favorite button */
 @Composable
 private fun HeaderSection(
-    ownerAvatarUrl: String?,
-    nameWithOwner: String,
-    isFavorite: Boolean,
-    onFavoriteClick: () -> Unit
+        ownerAvatarUrl: String?,
+        nameWithOwner: String,
+        isFavorite: Boolean,
+        onFavoriteClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
     ) {
         // Owner avatar
         AsyncImage(
-            model = ownerAvatarUrl,
-            contentDescription = "Owner avatar",
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                model = ownerAvatarUrl,
+                contentDescription = "Owner avatar",
+                modifier =
+                        Modifier.size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
         )
 
         // Repository name
         Text(
-            text = nameWithOwner,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(1f)
+                text = nameWithOwner,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f)
         )
 
         // Favorite button
         IconButton(onClick = onFavoriteClick) {
             Icon(
-                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                    contentDescription =
+                            if (isFavorite) "Remove from favorites" else "Add to favorites",
+                    tint =
+                            if (isFavorite) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
-/**
- * Basic statistics from Repository object (stars, forks)
- */
+/** Basic statistics from Repository object (stars, forks) */
 @Composable
 private fun BasicStatsSection(repository: Repository) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "Statistics",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+                text = "Statistics",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
         )
 
         // Stars and Forks (always available)
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             StatItem(
-                icon = Icons.Filled.Star,
-                count = repository.stargazersCount,
-                contentDescription = "Stars"
+                    icon = Icons.Filled.Star,
+                    count = repository.stargazersCount,
+                    contentDescription = "Stars"
             )
             StatItem(
-                icon = Icons.Filled.Star, // TODO: Use fork icon when available
-                count = repository.forksCount,
-                contentDescription = "Forks"
+                    icon = Icons.Filled.Star, // TODO: Use fork icon when available
+                    count = repository.forksCount,
+                    contentDescription = "Forks"
             )
 
             // Show primary language if available
             if (!repository.language.isNullOrBlank()) {
                 Text(
-                    text = repository.language,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                        text = repository.language,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
         }
     }
 }
 
-/**
- * Extended statistics from RepositoryDetails (watchers, issues, PRs)
- */
+/** Extended statistics from RepositoryDetails (watchers, issues, PRs) */
 @Composable
 private fun ExtendedStatsSection(details: RepositoryDetails) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "Additional Statistics",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+                text = "Additional Statistics",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
         )
 
         // Watchers
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             StatItem(
-                icon = Icons.Filled.Star, // TODO: Use watcher icon when available
-                count = details.watchersCount,
-                contentDescription = "Watchers"
+                    icon = Icons.Filled.Star, // TODO: Use watcher icon when available
+                    count = details.watchersCount,
+                    contentDescription = "Watchers"
             )
         }
 
         // Issues and Pull Requests
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "${details.openIssuesCount} open issues",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "${details.openIssuesCount} open issues",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "•",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "•",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "${details.openPullRequestsCount} open PRs",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "${details.openPullRequestsCount} open PRs",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
-/**
- * Metadata section (created, updated, license)
- */
+/** Metadata section (created, updated, license) */
 @Composable
-private fun MetadataSection(
-    createdAt: String,
-    updatedAt: String,
-    license: String?
-) {
+private fun MetadataSection(createdAt: String, updatedAt: String, license: String?) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "Information",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+                text = "Information",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
         )
 
         // Created date
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "Created:",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Created:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = DateFormatter.formatCreatedDate(createdAt),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                    text = DateFormatter.formatCreatedDate(createdAt),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
             )
         }
 
         // Updated date (relative)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "Updated:",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Updated:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = DateFormatter.formatRelativeTime(updatedAt),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                    text = DateFormatter.formatRelativeTime(updatedAt),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -385,31 +366,29 @@ private fun MetadataSection(
         if (!license.isNullOrBlank()) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "License:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "License:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = license,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                        text = license,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
     }
 }
 
-/**
- * Languages breakdown section
- */
+/** Languages breakdown section */
 @Composable
 private fun LanguagesSection(details: RepositoryDetails) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "Languages",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+                text = "Languages",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
         )
 
         // Calculate total size for percentages
@@ -418,45 +397,36 @@ private fun LanguagesSection(details: RepositoryDetails) {
         // Display each language with percentage
         details.languages.forEach { language ->
             val percentage = (language.size.toFloat() / totalSize.toFloat()) * 100f
-            LanguageItem(
-                name = language.name,
-                color = language.color,
-                percentage = percentage
-            )
+            LanguageItem(name = language.name, color = language.color, percentage = percentage)
         }
     }
 }
 
-/**
- * Links section (homepage, GitHub URL)
- */
+/** Links section (homepage, GitHub URL) */
 @Composable
-private fun LinksSection(
-    homepageUrl: String?,
-    repoUrl: String
-) {
+private fun LinksSection(homepageUrl: String?, repoUrl: String) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "Links",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+                text = "Links",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
         )
 
         // Homepage URL
         if (!homepageUrl.isNullOrBlank()) {
             Text(
-                text = "Homepage: $homepageUrl",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
+                    text = "Homepage: $homepageUrl",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
             )
         }
 
         // GitHub URL
         Text(
-            text = "GitHub: $repoUrl",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary
+                text = "GitHub: $repoUrl",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
         )
     }
 }

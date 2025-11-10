@@ -29,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.honcharenko.reposbrowser.data.model.Repository
+import com.honcharenko.reposbrowser.ui.screens.FavoritesScreen
 import com.honcharenko.reposbrowser.ui.screens.RepoDetailsScreen
 import com.honcharenko.reposbrowser.ui.screens.SearchScreen
 import com.honcharenko.reposbrowser.ui.theme.AppTheme
@@ -176,8 +177,11 @@ fun AppNavigation() {
             }
 
             composable(Screen.Favorites.route) {
-                // TODO: Replace with FavoritesScreen when implemented
-                FavoritesPlaceholder()
+                FavoritesScreen(
+                    onRepositoryClick = { repository ->
+                        navController.navigate(Screen.Details.createRoute(repository))
+                    }
+                )
             }
 
             composable(

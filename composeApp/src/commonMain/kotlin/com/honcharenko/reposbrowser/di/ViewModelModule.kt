@@ -1,5 +1,6 @@
 package com.honcharenko.reposbrowser.di
 
+import com.honcharenko.reposbrowser.viewmodel.FavoritesViewModel
 import com.honcharenko.reposbrowser.viewmodel.RepoDetailsViewModel
 import com.honcharenko.reposbrowser.viewmodel.SearchViewModel
 import org.koin.core.module.dsl.viewModel
@@ -25,6 +26,10 @@ val viewModelModule = module {
         )
     }
 
-    // Future ViewModels:
-    // viewModel { FavoritesViewModel(...) }
+    // FavoritesViewModel
+    viewModel {
+        FavoritesViewModel(
+            favoritesRepository = get()
+        )
+    }
 }

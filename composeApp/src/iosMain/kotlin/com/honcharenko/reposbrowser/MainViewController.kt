@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
 import com.honcharenko.reposbrowser.data.model.Repository
 import com.honcharenko.reposbrowser.di.initKoin
+import com.honcharenko.reposbrowser.ui.screens.FavoritesScreen
 import com.honcharenko.reposbrowser.ui.screens.RepoDetailsScreen
 import com.honcharenko.reposbrowser.ui.screens.SearchScreen
 import com.honcharenko.reposbrowser.ui.theme.AppTheme
@@ -28,21 +29,16 @@ fun initKoinIos() {
  */
 fun MainViewController() = ComposeUIViewController { App() }
 
-// iOS navigation callback holder - set this from Swift before showing SearchViewController
-var iosRepositoryClickCallback: ((Repository) -> Unit)? = null
-
 /**
  * Search screen view controller for iOS.
  * Used within SwiftUI TabView navigation.
  *
- * Before presenting this view controller, set iosRepositoryClickCallback from Swift.
+ * @param onRepositoryClick Callback invoked when a repository is clicked
  */
-fun SearchViewController() = ComposeUIViewController {
+fun SearchViewController(onRepositoryClick: (Repository) -> Unit) = ComposeUIViewController {
     AppTheme {
         SearchScreen(
-            onRepositoryClick = { repository ->
-                iosRepositoryClickCallback?.invoke(repository)
-            }
+            onRepositoryClick = onRepositoryClick
         )
     }
 }
@@ -64,26 +60,14 @@ fun RepoDetailsViewController(repository: Repository) = ComposeUIViewController 
 
 /**
  * Favorites screen view controller for iOS.
- * Placeholder until FavoritesScreen is implemented in Phase 3.
+ * Displays list of favorited repositories.
+ *
+ * @param onRepositoryClick Callback invoked when a repository is clicked
  */
-fun FavoritesViewController() = ComposeUIViewController {
+fun FavoritesViewController(onRepositoryClick: (Repository) -> Unit) = ComposeUIViewController {
     AppTheme {
-        FavoritesPlaceholder()
-    }
-}
-
-/**
- * Placeholder composable for Favorites screen
- */
-@Composable
-private fun FavoritesPlaceholder() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Favorites Screen - Coming Soon",
-            style = MaterialTheme.typography.headlineMedium
+        FavoritesScreen(
+            onRepositoryClick = onRepositoryClick
         )
     }
 }

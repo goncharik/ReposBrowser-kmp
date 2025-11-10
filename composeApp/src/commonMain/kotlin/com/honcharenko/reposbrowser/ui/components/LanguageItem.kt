@@ -54,7 +54,7 @@ fun LanguageItem(
 
         // Percentage
         Text(
-            text = String.format("%.1f%%", percentage),
+            text = "${(percentage * 10).toInt() / 10.0}%",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

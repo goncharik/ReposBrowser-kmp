@@ -5,19 +5,17 @@ import ComposeApp
 // MARK: - Compose View Wrappers
 
 struct SearchComposeView: UIViewControllerRepresentable {
-    let onRepositoryClick: (Repository) -> Void
+    let onRepositoryClick: (Repository_) -> Void
 
     func makeUIViewController(context: Context) -> UIViewController {
-        // Set the callback before creating the view controller
-        MainViewControllerKt.iosRepositoryClickCallback = onRepositoryClick
-        return MainViewControllerKt.SearchViewController()
+        return MainViewControllerKt.SearchViewController(onRepositoryClick: onRepositoryClick)
     }
-
+    
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
 
 struct RepositoryDetailsComposeView: UIViewControllerRepresentable {
-    let repository: Repository
+    let repository: Repository_
 
     func makeUIViewController(context: Context) -> UIViewController {
         return MainViewControllerKt.RepoDetailsViewController(repository: repository)
@@ -27,8 +25,10 @@ struct RepositoryDetailsComposeView: UIViewControllerRepresentable {
 }
 
 struct FavoritesComposeView: UIViewControllerRepresentable {
+    let onRepositoryClick: (Repository_) -> Void
+
     func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.FavoritesViewController()
+        return MainViewControllerKt.FavoritesViewController(onRepositoryClick: onRepositoryClick)
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
@@ -37,18 +37,19 @@ struct FavoritesComposeView: UIViewControllerRepresentable {
 // MARK: - Main Content View
 
 struct ContentView: View {
-    @State private var selectedRepository: Repository?
+    @State private var searchSelectedRepository: Repository_?
+    @State private var favoritesSelectedRepository: Repository_?
 
     var body: some View {
         TabView {
             NavigationStack {
                 SearchComposeView(onRepositoryClick: { repository in
-                    selectedRepository = repository
+                    searchSelectedRepository = repository
                 })
                 .navigationTitle("Search")
                 .navigationBarTitleDisplayMode(.large)
                 .ignoresSafeArea(edges: .bottom)
-                .navigationDestination(item: $selectedRepository) { repository in
+                .navigationDestination(item: $searchSelectedRepository) { repository in
                     RepositoryDetailsComposeView(repository: repository)
                         .navigationTitle(repository.name)
                         .navigationBarTitleDisplayMode(.inline)
@@ -60,10 +61,18 @@ struct ContentView: View {
             }
 
             NavigationStack {
-                FavoritesComposeView()
-                    .navigationTitle("Favorites")
-                    .navigationBarTitleDisplayMode(.large)
-                    .ignoresSafeArea(edges: .bottom)
+                FavoritesComposeView(onRepositoryClick: { repository in
+                    favoritesSelectedRepository = repository
+                })
+                .navigationTitle("Favorites")
+                .navigationBarTitleDisplayMode(.large)
+                .ignoresSafeArea(edges: .bottom)
+                .navigationDestination(item: $favoritesSelectedRepository) { repository in
+                    RepositoryDetailsComposeView(repository: repository)
+                        .navigationTitle(repository.name)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .ignoresSafeArea(edges: .bottom)
+                }
             }
             .tabItem {
                 Label("Favorites", systemImage: "star.fill")
@@ -71,6 +80,3 @@ struct ContentView: View {
         }
     }
 }
-
-
-
